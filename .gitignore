@@ -1,0 +1,7 @@
+**/bin/debug/
+**/bin/Resources/
+**/bin/TemplateCpp
+
+/proj.android
+/proj.ios_mac
+/linux-build
