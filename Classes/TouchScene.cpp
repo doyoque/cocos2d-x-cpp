@@ -18,23 +18,35 @@ bool TouchScene::init()
         return false;
     }
     
-   labelTouchInfo = Label::createWithSystemFont("Touch or clicksomewhere to begin", "Arial", 30);
+    auto sprite = Sprite::create("HelloWorld.png");
+    sprite->setPosition(Vec2(Director::getInstance()->getVisibleSize().width/2, Director::getInstance()->getVisibleSize().height/2));
 
-   labelTouchInfo->setPosition(Vec2(
-      Director::getInstance()->getVisibleSize().width / 2,
-      Director::getInstance()->getVisibleSize().height / 2));
+    //Add a "touch" event listener to our sprite
+    auto touchListener = EventListenerTouchOneByOne::create();
+    touchListener->onTouchBegan = [](Touch* touch, Event* event) -> bool {
+      auto bounds = event->getCurrentTarget()->getBoundingBox();
 
-   auto touchListener = EventListenerTouchOneByOne::create();
+      if(bounds.containsPoint(touch->getLocation())) {
+        std::stringstream touchDetails;
+        touchDetails << "Touched at OpenGL coordinates: " <<
+          touch->getLocation().x << "," << touch->getLocation().y << std::endl <<
+          "touched at UI coordinates: " <<
+          touch->getLocationInView().x << "," << touch->getLocationInView().y << std::endl <<
+          "touched at local coordinates: " <<
+          event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).x << "," <<
+          event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).y << std::endl <<
+          "Touch moved by: " << touch->getDelta().x << "," << touch->getDelta().y;
 
-   touchListener->onTouchBegan = CC_CALLBACK_2(TouchScene::onTouchBegan, this);
-   touchListener->onTouchEnded = CC_CALLBACK_2(TouchScene::onTouchEnded, this);
-   touchListener->onTouchMoved = CC_CALLBACK_2(TouchScene::onTouchMoved, this);
-   touchListener->onTouchCancelled = CC_CALLBACK_2(TouchScene::onTouchCancelled, this);
+          MessageBox(touchDetails.str().c_str(), "Touched");
+      }
 
-   _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
-    
-   this->addChild(labelTouchInfo);
-   return true;
+      return true;
+    };
+
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touchListener, sprite);
+    this->addChild(sprite, 0);
+
+    return true;
 }
 
 bool TouchScene::onTouchBegan(Touch* touch, Event* event)
